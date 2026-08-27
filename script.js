@@ -1,6 +1,7 @@
 // --- STATE MANAGEMENT ---
 const state = {
     mode: 'express',
+    hasCalculated: false,
     formData: {
         propertyValue: 5000000, loanAmount: 4000000, income: 60000, 
         loanTerm: 30, fixation: 5, age: 35, children: 0, liabilities: 0,
@@ -30,7 +31,6 @@ const findQuickResponse = (msg) => {
     return null;
 }
 
-// --- HELPERS ---
 const formatNumber = (n, currency = true) => Number(n).toLocaleString('cs-CZ', currency ? { style: 'currency', currency: 'CZK', maximumFractionDigits: 0 } : { maximumFractionDigits: 0 });
 
 const createSlider = (id, label, value, min, max, step, containerClass = '', infoText = '') => {
@@ -63,7 +63,6 @@ const createSelect = (id, label, options, selectedValue, containerClass = '') =>
     </div>`;
 };
 
-// --- RENDER FORM ---
 const renderForm = () => {
     const container = document.getElementById('calculator-form');
     if (state.mode === 'express') {
@@ -156,8 +155,10 @@ window.handleInput = (id, val, type) => {
         if (textInput) textInput.value = formatNumber(parsedVal, false);
     }
     updateLTVDisplay();
-    clearTimeout(window.calcTimeout);
-    window.calcTimeout = setTimeout(fetchRates, 600);
+    if (state.hasCalculated) {
+        clearTimeout(window.calcTimeout);
+        window.calcTimeout = setTimeout(fetchRates, 600);
+    }
 };
 
 window.handleSelect = (id, val) => {
@@ -165,8 +166,10 @@ window.handleSelect = (id, val) => {
     if (id === 'purpose') handleGuidedFormLogic();
     updateLTVDisplay();
     generateSuggestions(); 
-    clearTimeout(window.calcTimeout);
-    window.calcTimeout = setTimeout(fetchRates, 600);
+    if (state.hasCalculated) {
+        clearTimeout(window.calcTimeout);
+        window.calcTimeout = setTimeout(fetchRates, 600);
+    }
 };
 
 const renderScoreBar = (label, val, explanation, colorClass, icon) => `
@@ -221,7 +224,6 @@ const renderResults = () => {
                     <div class="text-3xl font-bold text-yellow-400">${best.rate.toFixed(2)} % p.a.</div>
                 </div>
             </div>
-            ${best.highlights ? `<div class="flex flex-wrap gap-2 mt-4">${best.highlights.map(h => `<span class="px-3 py-1 bg-white/20 rounded-full text-xs font-bold">${h}</span>`).join('')}</div>` : ''}
         </div>`;
 
     if (calc.offers.length > 1) {
@@ -267,7 +269,6 @@ const renderResults = () => {
 
     res.innerHTML = html;
 
-    // --- ANUITNÍ GRAF ---
     if (fix && typeof Chart !== 'undefined') {
         const ctx = document.getElementById('chart').getContext('2d');
         if (state.chartInstance) state.chartInstance.destroy();
@@ -311,13 +312,11 @@ const renderResults = () => {
         });
     }
 
-    // SKRYTÍ MANUÁLNÍCH POLÍ V OBOU FORMULÁŘÍCH
     document.querySelectorAll('.manual-financial-fields').forEach(el => el.classList.add('hidden'));
 
-    // Nastavení extraData inputů
     const extraInputs = document.querySelectorAll('.extraDataInput');
     extraInputs.forEach(inp => {
-        inp.value = JSON.stringify({ formData: state.formData, calculation: state.calculation });
+        inp.value = JSON.stringify({ formData: state.formData, calculation: state.calculation, chatHistory: state.chatHistory });
     });
 };
 
@@ -327,7 +326,18 @@ window.selectOffer = (id) => {
 };
 
 const fetchRates = async () => {
-    document.getElementById('results-container').innerHTML = `<div class="p-16 flex justify-center"><div class="animate-spin rounded-full h-10 w-10 border-b-4 border-blue-600"></div></div>`;
+    const resContainer = document.getElementById('results-container');
+    const resWrapper = document.getElementById('results-wrapper');
+    const ctaContainer = document.getElementById('calc-cta-container');
+
+    if (!state.hasCalculated) {
+        state.hasCalculated = true;
+        if(ctaContainer) ctaContainer.classList.add('hidden');
+        if(resWrapper) resWrapper.classList.remove('hidden');
+    }
+
+    resContainer.innerHTML = `<div class="p-16 flex justify-center"><div class="animate-spin rounded-full h-10 w-10 border-b-4 border-blue-600"></div></div>`;
+    
     try {
         const res = await fetch(`/.netlify/functions/rates?${new URLSearchParams(state.formData).toString()}`);
         if (!res.ok) throw new Error('API');
@@ -335,7 +345,7 @@ const fetchRates = async () => {
         state.calculation.selectedOffer = state.calculation.offers[0];
         renderResults();
     } catch(e) {
-        document.getElementById('results-container').innerHTML = `<div class="p-6 bg-red-50 text-red-700 rounded-xl font-bold border border-red-200 text-center">Chyba připojení k serveru. Nelze načíst sazby.</div>`;
+        resContainer.innerHTML = `<div class="p-6 bg-red-50 text-red-700 rounded-xl font-bold border border-red-200 text-center">Chyba připojení k serveru. Nelze načíst sazby.</div>`;
     }
 };
 
@@ -346,7 +356,7 @@ const appendChat = (text, sender) => {
     let pt = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
     
     if (pt.includes('showLeadForm')) {
-        pt = `Rád vás spojím s expertem. Formulář najdete hned pod výsledky, <strong><a href="#kontakt-form" class="text-blue-600 underline">případně klikněte zde</a></strong>.`;
+        pt = `Rád vás spojím s expertem. Otevírám formulář, nebo <strong><a href="#kontakt-form" class="text-blue-600 underline">klikněte zde</a></strong>.`;
         document.getElementById('lead-modal').classList.remove('hidden');
     }
     
@@ -364,7 +374,6 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
     const msg = inputEl.value.trim();
     if (!msg || state.isAiTyping) return;
     
-    // Quick Response Override
     const quickRes = findQuickResponse(msg);
     if (quickRes) {
         appendChat(msg, 'user');
@@ -412,14 +421,14 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
         
         if (data.tool === 'showLeadForm') { 
             appendChat('Otevírám kontakt.', 'ai');
-            document.getElementById('kontakt-form').scrollIntoView({behavior: 'smooth'});
+            document.getElementById('lead-modal').classList.remove('hidden');
         } else { 
             appendChat(data.response || data, 'ai'); 
         }
     } catch(err) {
         document.getElementById(tid)?.remove();
         state.isAiTyping = false;
-        appendChat(`Chyba API Googlu: ${err.message}. Kontaktujte specialistu přímo přes formulář.`, 'ai');
+        appendChat(`Chyba API Googlu: ${err.message}. Kontaktujte specialistu přímo přes formulář dole.`, 'ai');
     }
 });
 
@@ -455,13 +464,19 @@ document.getElementById('mode-express').addEventListener('click', (e) => {
     state.mode = 'express';
     e.target.className = "px-6 py-2 text-sm font-bold bg-white text-slate-900 shadow-sm rounded-lg transition-all";
     document.getElementById('mode-guided').className = "px-6 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors";
-    renderForm(); fetchRates();
+    renderForm();
+    if (state.hasCalculated) fetchRates();
 });
 document.getElementById('mode-guided').addEventListener('click', (e) => {
     state.mode = 'guided';
     e.target.className = "px-6 py-2 text-sm font-bold bg-white text-slate-900 shadow-sm rounded-lg transition-all";
     document.getElementById('mode-express').className = "px-6 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors";
-    renderForm(); fetchRates();
+    renderForm();
+    if (state.hasCalculated) fetchRates();
+});
+
+document.getElementById('calc-btn')?.addEventListener('click', () => {
+    fetchRates();
 });
 
 // OBSLUHA OBOJÍCH FORMULÁŘŮ
@@ -470,6 +485,12 @@ const handleFormSubmit = async (e) => {
     const btn = e.target.querySelector('.submit-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Odesílám...'; }
     
+    // Zajistíme, aby se před odesláním uložila aktuální historie do hidden pole
+    const extraDataInput = e.target.querySelector('.extraDataInput');
+    if (extraDataInput) {
+        extraDataInput.value = JSON.stringify({ formData: state.formData, calculation: state.calculation, chatHistory: state.chatHistory });
+    }
+
     const fd = new FormData(e.target);
     const p = new URLSearchParams();
     for (const pair of fd.entries()) p.append(pair[0], pair[1]);
@@ -490,6 +511,5 @@ document.getElementById('modal-lead-form')?.addEventListener('submit', handleFor
 
 // INIT
 renderForm(); 
-fetchRates(); 
 generateSuggestions();
-setTimeout(() => appendChat('Dobrý den! Jsem váš hypoteční stratég. Vidím vaši kalkulaci vedle. Můžete se mě zeptat na cokoliv.', 'ai'), 800);
+setTimeout(() => appendChat('Dobrý den! Jsem váš hypoteční stratég. Nastavte si vlevo parametry a klikněte na "Spočítat", abych mohl začít analyzovat.', 'ai'), 800);
