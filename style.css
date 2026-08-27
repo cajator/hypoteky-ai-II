@@ -36,7 +36,4 @@ html { scroll-behavior: smooth; }
 }
 .info-icon:hover { background: #3b82f6; }
 
-/* SKRYTÍ NETLIFY BADGE V PRAVÉM DOLNÍM ROHU */
-#netlify-badge, a[href*="netlify.com"] img[src*="netlify"] {
-    display: none !important;
-}
+#netlify-badge, a[href*="netlify.com"] img[src*="netlify"] { display: none !important; }

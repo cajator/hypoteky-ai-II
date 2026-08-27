@@ -22,7 +22,8 @@ exports.handler = async (event) => {
                 'Hodnota nemovitosti': extraData.formData?.propertyValue || formData.get('manual_prop') || '',
                 'Měsíční splátka': extraData.calculation?.selectedOffer?.monthlyPayment || '',
                 'Úroková sazba': extraData.calculation?.selectedOffer?.rate ? `${extraData.calculation.selectedOffer.rate} %` : '',
-                'Čistý příjem (Kč)': extraData.formData?.income || '', 'Poznámka': formData.get('note') || ''
+                'Čistý příjem (Kč)': extraData.formData?.income || '', 'Poznámka': formData.get('note') || '',
+                'Preferovaný čas': formData.get('contact-time') || ''
             });
         }
         return { statusCode: 200, body: 'Form processed successfully' };

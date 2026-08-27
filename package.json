@@ -1,1 +1,1 @@
-{"name":"hypotekyai-v9-final","version":"1.0.0","dependencies":{"google-auth-library":"^10.4.2","google-spreadsheet":"^5.0.2"}}
+{"name":"hypotekyai-v10-robust","version":"1.0.0","dependencies":{"google-auth-library":"^10.4.2","google-spreadsheet":"^5.0.2"}}

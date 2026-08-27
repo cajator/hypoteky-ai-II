@@ -70,7 +70,7 @@ const renderForm = () => {
                 ${createSelect('education', 'Nejvyšší vzdělání', {'základní':'Základní', 'středoškolské':'Středoškolské', 'vysokoškolské':'Vysokoškolské'}, state.formData.education)}
             </div>
             <div class="mt-4 pt-6 border-t border-slate-200">
-                ${createSlider('propertyValue', 'Hodnota nemovitosti', state.formData.propertyValue, 500000, 30000000, 100000)}
+                ${createSlider('propertyValue', 'Hodnota nemovitosti / stavby', state.formData.propertyValue, 500000, 30000000, 100000)}
                 ${createSlider('landValue', 'Hodnota pozemku', state.formData.landValue, 0, 10000000, 50000, 'hidden')}
                 ${createSlider('reconstructionValue', 'Rozsah rekonstrukce', state.formData.reconstructionValue, 0, 10000000, 50000, 'hidden')}
                 <div id="total-property-value-display" class="hidden text-center bg-slate-100 p-2 rounded-lg text-sm mb-4"></div>
@@ -92,7 +92,7 @@ const renderForm = () => {
     handleGuidedFormLogic();
     updateLTVDisplay();
     setupTooltips();
-    generateSuggestions(); // Update suggestions based on fields
+    generateSuggestions();
 };
 
 const handleGuidedFormLogic = () => {
@@ -151,7 +151,7 @@ window.handleSelect = (id, val) => {
     state.formData[id] = val;
     if (id === 'purpose') handleGuidedFormLogic();
     updateLTVDisplay();
-    generateSuggestions(); // Změna selectu (např OSVČ) změní návrhy chatu
+    generateSuggestions(); 
     clearTimeout(window.calcTimeout);
     window.calcTimeout = setTimeout(fetchRates, 600);
 };
@@ -252,34 +252,22 @@ const renderResults = () => {
         </div>`;
     }
 
-    html += `
-        <div class="text-center bg-blue-50 p-8 rounded-2xl border border-blue-100">
-            <h4 class="text-xl font-extrabold text-blue-900 mb-2">Líbí se vám tato analýza?</h4>
-            <p class="text-sm text-blue-700 mb-6">Nechte si ji nezávazně ověřit specialistou a vyjednat přesné podmínky.</p>
-            <button onclick="document.getElementById('lead-modal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-lg transition-transform transform hover:-translate-y-1">
-                ✅ Chci ověřit dostupnost zdarma
-            </button>
-        </div>
-    `;
-
     res.innerHTML = html;
 
-    // --- OPRAVA GRAFU MATEMATICKY ---
+    // --- ANUITNÍ GRAF ---
     if (fix && typeof Chart !== 'undefined') {
         const ctx = document.getElementById('chart').getContext('2d');
         if (state.chartInstance) state.chartInstance.destroy();
         
-        // Získáme reálnou matematiku z anuity
-        const payment = best.monthlyPayment * 12; // Roční splátka (stálá)
+        const payment = best.monthlyPayment * 12; 
         const rate = best.rate / 100;
         let balance = state.formData.loanAmount;
-        const yearsToShow = Math.min(state.formData.fixation, 10); // Ukažme max 10 let
+        const yearsToShow = Math.min(state.formData.fixation, 10); 
         const yData = [];
 
         for (let year = 1; year <= yearsToShow; year++) {
             let yearInterest = 0;
             let yearPrincipal = 0;
-            // Výpočet po měsících pro jeden rok
             for(let m = 0; m < 12; m++) {
                 const interest = balance * (rate / 12);
                 const principal = (payment / 12) - interest;
@@ -310,6 +298,7 @@ const renderResults = () => {
         });
     }
 
+    // Formulář pro leady je dole, updatneme skrytá pole
     document.getElementById('manual-financial-fields')?.classList.add('hidden');
 };
 
@@ -335,12 +324,10 @@ const fetchRates = async () => {
 const appendChat = (text, sender) => {
     const w = document.createElement('div');
     w.className = `flex w-full ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
-    let pt = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/
-/g, '<br>');
+    let pt = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
     
     if (pt.includes('showLeadForm')) {
-        pt = `Rád vás spojím s expertem. <strong><a href="#" onclick="document.getElementById('lead-modal').classList.remove('hidden'); return false;" class="text-blue-600 underline">Klikněte sem pro formulář</a></strong>.`;
-        setTimeout(()=>document.getElementById('lead-modal').classList.remove('hidden'), 1000);
+        pt = `Rád vás spojím s expertem. Formulář najdete hned pod výsledky, <strong><a href="#kontakt-form" class="text-blue-600 underline">případně klikněte zde</a></strong>.`;
     }
     
     w.innerHTML = `<div class="${sender === 'user' ? 'bubble-user' : 'bubble-ai shadow-sm'}">${pt}</div>`;
@@ -384,15 +371,15 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
         const data = await res.json();
         
         if (data.tool === 'showLeadForm') { 
-            document.getElementById('lead-modal').classList.remove('hidden');
-            appendChat('Otevírám kontaktní formulář.', 'ai'); 
+            appendChat('Otevírám kontakt.', 'ai');
+            document.getElementById('kontakt-form').scrollIntoView({behavior: 'smooth'});
         } else { 
             appendChat(data.response || data, 'ai'); 
         }
     } catch(err) {
         document.getElementById(tid)?.remove();
         state.isAiTyping = false;
-        appendChat(`Chyba API Googlu: ${err.message}. Zkuste to znovu.`, 'ai');
+        appendChat(`Chyba API Googlu: ${err.message}. Kontaktujte specialistu přímo přes formulář dole.`, 'ai');
     }
 });
 
@@ -400,7 +387,6 @@ const generateSuggestions = () => {
     const sug = document.getElementById('ai-suggestions');
     let texts = ["Vysvětli mi DSTI", "Mám záznam v registru", "Změnit fixaci", "Co je LTV?"];
     
-    // Kontextová změna tlačítek podle toho co uživatel zadal!
     if (state.formData.employment === 'osvč' || state.formData.employment === 'jednatel') {
         texts = ["Jak banky počítají obrat?", "Nejnižší sazba pro OSVČ?", "Vyžadujete daňové přiznání?"];
     } else if (state.formData.purpose === 'refinancování') {

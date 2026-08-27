@@ -1,22 +1,58 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Podmínky a GDPR - Hypoteky Ai</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-slate-50 font-['Inter'] text-slate-800">
-    <header class="bg-white shadow-sm px-6 py-4 flex items-center">
-        <a href="index.html" class="font-extrabold text-xl text-slate-900">Hypoteky<span class="text-blue-600">Ai</span></a><span class="ml-4 text-sm text-slate-500">/ Podmínky použití</span>
+    <header class="bg-white shadow-sm border-b border-slate-200 px-6 py-4 flex items-center sticky top-0 z-50">
+        <a href="index.html" class="font-extrabold text-xl text-slate-900">Hypoteky<span class="text-blue-600">Ai</span></a>
+        <span class="ml-4 text-sm text-slate-500 font-medium">/ Podmínky použití</span>
     </header>
-    <main class="container mx-auto px-4 py-12 max-w-3xl">
-        <div class="bg-white p-8 rounded-2xl shadow-sm">
-            <h1 class="text-3xl font-extrabold mb-6">Obchodní podmínky a GDPR</h1>
-            <p class="mb-4">Provozovatelem webu je společnost Extra Easy s.r.o. a poskytovatelem služby je Premium Financial Services s.r.o.</p>
-            <h2 class="text-xl font-bold mt-6 mb-2">Ochrana osobních údajů</h2>
-            <p class="mb-4">Vaše osobní údaje zpracováváme výhradně za účelem poskytnutí finančně-poradenských služeb a srovnání hypoték. Údaje jsou přenášeny šifrovaně.</p>
-            <a href="index.html" class="inline-block mt-4 text-blue-600 font-bold hover:underline">← Zpět na hlavní stranu</a>
+    <main class="container mx-auto px-4 py-12 max-w-4xl">
+        <div class="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200">
+            <h1 class="text-3xl font-extrabold text-slate-900 mb-8">Provozní podmínky a zpracování údajů</h1>
+
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">Definice pojmů</h2>
+                <ul class="list-disc list-inside space-y-2 text-slate-600">
+                    <li><strong>"Provozovatelem"</strong> - společnost Extra Easy s.r.o.</li>
+                    <li><strong>"Poskytovatelem"</strong> - společnost Premium Financial Services s.r.o.</li>
+                    <li><strong>"Webem"</strong> - internetové stránky provozované Provozovatelem</li>
+                    <li><strong>"Uživatelem"</strong> - jakákoliv fyzická osoba, která používá Web</li>
+                </ul>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">Provozní podmínky</h2>
+                <p class="text-slate-600 mb-4">Provozovatelem webu je společnost <strong>Extra Easy s.r.o.</strong>, se sídlem Opletalova 1417/25, 110 00 Praha 1, IČO: 24780260, a poskytovatelem služby je společnost <strong>Premium Financial Services s.r.o.</strong>, se sídlem Opletalova 1417/25, 110 00 Praha 1, IČO: 24198714.</p>
+                <p class="text-slate-600 mb-4">Účelem zobrazení informací na Webu není poskytnout detailní a úplné informace o jednotlivých produktech, ale spíše porovnat hlavní parametry tam, kde je to možné. Provozovatel ani Poskytovatel nenesou odpovědnost za případné škody vzniklé použitím těchto informací.</p>
+                <p class="text-slate-600 mb-4">Pokud jste vyjádřil/a zájem o naše služby odesláním kontaktních osobních údajů, bude Vás kontaktovat naše klientské centrum, popř. přímo náš hypoteční specialista za účelem domluvení schůzky.</p>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">Informace ke zpracování osobních údajů</h2>
+                <p class="text-slate-600 mb-4">Osobní údaje zpracováváme v souladu s čl. 6 odst. 1 písm. b) Obecného nařízení o ochraně osobních údajů (GDPR), tedy za účelem jednání o poskytnutí finančně-poradenských služeb.</p>
+                <p class="text-slate-600 mb-4">Vaše osobní údaje nezpracováváme ani nepředáváme mimo území Evropské unie.</p>
+                
+                <h3 class="font-bold text-slate-800 mb-3 mt-6">Vaše práva:</h3>
+                <ul class="list-disc list-inside space-y-2 text-slate-600 mb-4">
+                    <li>Právo na přístup k osobním údajům</li>
+                    <li>Právo na opravu osobních údajů</li>
+                    <li>Právo na výmaz osobních údajů</li>
+                    <li>Právo na omezení zpracování a přenositelnost</li>
+                </ul>
+                <p class="text-slate-600 mb-4">Svá práva můžete uplatnit na e-mailové adrese <strong>info@hypotekyai.cz</strong>.</p>
+            </div>
+
+            <a href="index.html" class="inline-block mt-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-3 rounded-xl transition-colors">
+                ← Zpět na kalkulačku
+            </a>
         </div>
     </main>
-</body></html>
+</body>
+</html>
