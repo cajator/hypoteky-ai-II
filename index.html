@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased font-['Inter']">
+<body class="bg-slate-50 text-slate-800 antialiased font-['Inter']"> <!-- Žádný h-screen, žádný overflow-hidden -->
 
     <!-- Hlavička -->
     <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-slate-200">
@@ -22,7 +22,6 @@
                 <a href="#kalkulacka" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">Nástroj</a>
                 <a href="#premium-features" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">Funkce</a>
                 <a href="#myty-fakta" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">Mýty a fakta</a>
-                <a href="faq.html" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">FAQ</a>
             </div>
             <button onclick="document.getElementById('lead-modal').classList.remove('hidden')" class="bg-slate-900 hover:bg-blue-600 text-white text-sm px-6 py-2.5 rounded-full font-bold shadow-lg transition-all transform hover:-translate-y-0.5">
                 Ověřit s expertem
@@ -42,25 +41,23 @@
         <p class="text-lg text-slate-500 mb-8 max-w-2xl mx-auto">Nenabízíme jen prázdnou kalkulačku. Zadejte parametry a naše AI vám okamžitě ukáže reálné šance na schválení, odhalí rizika a navrhne strategii.</p>
     </section>
 
-    <!-- THE APP CORE: Vycentrovaný obrovský blok -->
+    <!-- THE APP CORE: Žádné rolování uvnitř levé strany. Chat je sticky. -->
     <section id="kalkulacka" class="container mx-auto px-4 mb-20 scroll-mt-24">
-        <div class="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-100 flex flex-col lg:flex-row overflow-hidden max-w-6xl mx-auto">
+        <div class="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-100 flex flex-col lg:flex-row max-w-6xl mx-auto items-start relative">
             
-            <!-- LEVÁ ČÁST: Kalkulačka a Výsledky -->
-            <!-- Vylepšeno: na velkém monitoru drží pevnou výšku, jinak roste dle obsahu -->
-            <div class="w-full lg:w-7/12 flex flex-col lg:h-[80vh] lg:min-h-[700px]">
+            <!-- LEVÁ ČÁST: Kalkulačka a Výsledky (Roste přirozeně s obsahem) -->
+            <div class="w-full lg:w-7/12 flex flex-col pb-10">
                 
                 <!-- Záložky -->
-                <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+                <div class="p-6 border-b border-slate-100 bg-slate-50/50 rounded-tl-[2rem]">
                     <div class="flex bg-slate-200/50 p-1 rounded-xl w-max">
                         <button class="px-6 py-2 text-sm font-bold bg-white text-slate-900 shadow-sm rounded-lg transition-all" id="mode-express">Rychlá kalkulace</button>
                         <button class="px-6 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors" id="mode-guided">Detailní analýza</button>
                     </div>
                 </div>
 
-                <!-- Scrollable Content -->
-                <div class="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8">
-                    
+                <!-- Content -->
+                <div class="p-6 lg:p-8">
                     <!-- Vstupní formulář -->
                     <div id="calculator-form" class="space-y-6 mb-8">
                         <!-- Zde se vykreslí posuvníky pomocí JS -->
@@ -72,15 +69,15 @@
                     <div id="results-container" class="space-y-8">
                         <!-- Zde se vykreslí nabídky, skóre a graf -->
                     </div>
-
                 </div>
             </div>
 
-            <!-- PRAVÁ ČÁST: AI Chat -->
-            <div class="w-full lg:w-5/12 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-100 flex flex-col lg:h-[80vh] lg:min-h-[700px] relative">
+            <!-- PRAVÁ ČÁST: AI Chat (STICKY) -->
+            <!-- Na desktopu přilepené k hornímu okraji obrazovky při scrollování -->
+            <div class="w-full lg:w-5/12 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-100 flex flex-col lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)] rounded-b-[2rem] lg:rounded-bl-none lg:rounded-tr-[2rem]">
                 
                 <!-- Hlavička chatu -->
-                <div class="bg-white p-5 border-b border-slate-100 flex items-center justify-between z-10 shadow-sm">
+                <div class="bg-white p-5 border-b border-slate-100 flex items-center justify-between z-10 shadow-sm lg:rounded-tr-[2rem]">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30">🤖</div>
                         <div>
@@ -90,18 +87,18 @@
                     </div>
                 </div>
                 
-                <!-- Bubliny -->
+                <!-- Bubliny (tato část má scrollbar pro historii chatu) -->
                 <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
                     <!-- Zprávy -->
                 </div>
                 
                 <!-- Vstup chatu -->
-                <div class="bg-white p-4 border-t border-slate-200">
+                <div class="bg-white p-4 border-t border-slate-200 lg:rounded-br-[2rem]">
                     <div id="ai-suggestions" class="flex gap-2 overflow-x-auto pb-3 mb-1 custom-scrollbar">
                         <!-- Zkratky -->
                     </div>
                     <form id="chat-form" class="flex gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:bg-white transition-all">
-                        <input type="text" id="chat-input" class="flex-1 bg-transparent px-3 py-2 text-sm outline-none text-slate-800" placeholder="Zeptejte se na strategii..." autocomplete="off">
+                        <input type="text" id="chat-input" class="flex-1 bg-transparent px-3 py-2 text-sm outline-none text-slate-800" placeholder="Zeptejte se na strategii...">
                         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors shadow-sm">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
@@ -113,6 +110,7 @@
         </div>
     </section>
 
+    <!-- Rest of the Content -->
     <!-- Premium Funkce -->
     <section id="premium-features" class="container mx-auto px-4 mb-20">
         <div class="text-center mb-12">
@@ -143,7 +141,6 @@
         <div class="container mx-auto px-4 max-w-6xl">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-extrabold mb-4">Vyvracíme hypoteční mýty</h2>
-                <p class="text-slate-400">Klikněte na kartu a odhalte pravdu.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Karta 1 -->
@@ -186,103 +183,43 @@
         </div>
     </section>
 
-    <!-- Partneři -->
-    <section class="py-12 bg-white border-b border-slate-200">
-        <div class="container mx-auto px-4 text-center">
-            <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Porovnáváme a sjednáváme úvěry u těchto partnerů</p>
-            <div class="flex flex-wrap justify-center items-center gap-8 opacity-50 grayscale">
-                <span class="text-xl font-black">Česká spořitelna</span>
-                <span class="text-xl font-black">ČSOB</span>
-                <span class="text-xl font-black">Komerční banka</span>
-                <span class="text-xl font-black">Raiffeisenbank</span>
-                <span class="text-xl font-black">UniCredit</span>
-                <span class="text-xl font-black">mBank</span>
-            </div>
-        </div>
-    </section>
-
     <!-- Patička -->
-    <footer id="o-nas" class="bg-slate-100 py-12">
+    <footer class="bg-slate-100 py-12">
         <div class="container mx-auto px-4 text-center max-w-3xl">
             <h2 class="text-2xl font-extrabold mb-4">Kdo stojí za Hypoteky Ai?</h2>
-            <p class="text-slate-600 mb-8">Jsme tým certifikovaných hypotečních specialistů ze společnosti Premium Financial Services. Na trhu působíme přes 15 let a rozhodli jsme se spojit naše vyjednávací schopnosti s moderní umělou inteligencí, abychom vám ušetřili čas i peníze.</p>
-            <p class="text-slate-400 text-sm mb-6">&copy; 2026 Hypoteky Ai. Provozováno s vášní pro technologie a finance.</p>
-            <div class="flex justify-center gap-6">
-                <a href="podminky-pouziti.html" class="text-sm font-semibold text-slate-500 hover:text-slate-900">Obchodní podmínky & GDPR</a>
-                <a href="faq.html" class="text-sm font-semibold text-slate-500 hover:text-slate-900">Časté dotazy (FAQ)</a>
-            </div>
+            <p class="text-slate-600 mb-8">Jsme tým certifikovaných hypotečních specialistů. Na trhu působíme přes 15 let a rozhodli jsme se spojit naše vyjednávací schopnosti s moderní umělou inteligencí.</p>
+            <p class="text-slate-400 text-sm mb-6">&copy; 2026 Hypoteky Ai. Všechna práva vyhrazena.</p>
         </div>
     </footer>
 
-    <!-- MODAL FORM - Profesionální Leadovač -->
+    <!-- MODAL FORM -->
     <div id="lead-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-[100] overflow-y-auto">
         <div class="min-h-screen px-4 py-10 text-center flex items-center justify-center">
             <div class="bg-white rounded-3xl max-w-xl w-full p-8 text-left shadow-2xl relative">
                 <button onclick="document.getElementById('lead-modal').classList.add('hidden')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800 bg-slate-100 rounded-full p-2 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
-                
                 <h3 class="text-3xl font-extrabold text-slate-900 mb-2">Závazné ověření s expertem</h3>
-                <p class="text-slate-500 mb-8">Nechte nám kontakt. Náš specialista zkontroluje vaše skóre, ověří metodiky bank a vyjedná nejlepší sazbu. <strong class="text-green-600">Zcela zdarma.</strong></p>
-                
+                <p class="text-slate-500 mb-8">Nechte nám kontakt. Náš specialista zkontroluje vaše skóre a vyjedná nejlepší sazbu. <strong class="text-green-600">Zcela zdarma.</strong></p>
                 <form id="lead-form" class="space-y-5" name="lead-form" data-netlify="true" netlify-honeypot="bot-field">
                     <input type="hidden" name="form-name" value="lead-form" />
                     <p class="hidden"><label>Nevyplňujte: <input name="bot-field" /></label></p>
                     <input type="hidden" name="extraData" id="extraData" />
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Jméno a příjmení *</label>
-                            <input type="text" name="name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Telefon *</label>
-                            <input type="tel" name="phone" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                        </div>
+                        <input type="text" name="name" required placeholder="Jméno a příjmení *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="tel" name="phone" required placeholder="Telefon *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">E-mail *</label>
-                            <input type="email" name="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">PSČ *</label>
-                            <input type="text" name="psc" required placeholder="např. 110 00" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                        </div>
+                        <input type="email" name="email" required placeholder="E-mail *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="text" name="psc" required placeholder="PSČ *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
-
-                    <!-- Manuální pole -->
-                    <div id="manual-financial-fields" class="grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-100 p-5 rounded-xl border border-slate-200 hidden">
-                        <div><label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Výše úvěru</label><input type="number" name="manual_loan" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none"></div>
-                        <div><label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Hodnota nemovitosti</label><input type="number" name="manual_prop" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none"></div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Kdy vás můžeme kontaktovat?</label>
-                        <select name="contact-time" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="kdykoliv">Kdykoliv během dne</option>
-                            <option value="rano">Ráno (8:00 - 12:00)</option>
-                            <option value="odpoledne">Odpoledne (12:00 - 17:00)</option>
-                            <option value="vecer">Večer (17:00 - 20:00)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Doplňující informace (nepovinné)</label>
-                        <textarea name="note" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Jsem OSVČ, už mám vyhlédnutý dům..."></textarea>
-                    </div>
-
                     <button type="submit" id="submit-lead-btn" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-colors mt-4">
                         Odeslat nezávazně ke zpracování
                     </button>
-                    <p class="text-xs text-center text-slate-400 mt-2">Vaše data jsou u nás v bezpečí a slouží pouze pro výpočet hypotéky.</p>
                 </form>
-                
                 <div id="form-success" class="hidden mt-6 p-6 bg-green-50 text-green-800 rounded-xl border border-green-200 text-center">
                     <div class="text-4xl mb-2">✅</div>
                     <h4 class="font-extrabold text-xl mb-1">Požadavek úspěšně odeslán</h4>
-                    <p class="text-sm font-medium">Náš specialista vaše data nyní analyzuje a brzy se vám ozve na zadané číslo.</p>
                 </div>
             </div>
         </div>
