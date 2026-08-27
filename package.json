@@ -1,1 +1,8 @@
-{"name":"hypotekyai-v6-premium","version":"1.0.0"}
+{
+  "name": "hypotekyai-II",
+  "version": "1.0.0",
+  "dependencies": {
+    "google-auth-library": "^10.4.2",
+    "google-spreadsheet": "^5.0.2"
+  }
+}
