@@ -24,7 +24,6 @@
                 <a href="#myty-fakta" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">Mýty a fakta</a>
                 <a href="faq.html" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">FAQ</a>
             </div>
-            <!-- ZMĚNA: Tlačítko nahoře už neskáče dolů, ale otevře okamžitě modal -->
             <button onclick="document.getElementById('lead-modal').classList.remove('hidden')" class="bg-slate-900 hover:bg-blue-600 text-white text-sm px-6 py-2.5 rounded-full font-bold shadow-lg transition-all transform hover:-translate-y-0.5">
                 Ověřit s expertem
             </button>
@@ -70,8 +69,8 @@
                     
                     <hr class="border-slate-100 my-8">
                     
-                    <!-- INLINE LEAD FORM (PEVNĚ POD KALKULAČKOU) -->
-                    <div id="kontakt-form" class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200">
+                    <!-- INLINE LEAD FORM -->
+                    <div id="kontakt-form" class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 scroll-mt-24">
                         <h3 class="text-2xl font-extrabold text-slate-900 mb-2">Závazné ověření s expertem</h3>
                         <p class="text-slate-500 mb-8 text-sm">Líbí se vám tato analýza? Nechte nám kontakt. Náš specialista zkontroluje vaše skóre a vyjedná nejlepší sazbu. Zcela zdarma.</p>
                         
@@ -120,7 +119,6 @@
                             <button type="submit" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-colors mt-2 submit-btn">
                                 Odeslat nezávazně ke zpracování
                             </button>
-                            <p class="text-xs text-center text-slate-400">Vaše data jsou u nás v bezpečí a slouží pouze pro výpočet hypotéky.</p>
                         </form>
                         
                         <div id="inline-form-success" class="hidden mt-6 p-6 bg-green-50 text-green-800 rounded-xl border border-green-200 text-center">
@@ -233,17 +231,23 @@
         </div>
     </section>
 
-    <!-- Partneři -->
+    <!-- Partneři (NOVĚ ROZBALENÍ VŠECH BANK) -->
     <section class="py-12 bg-white border-y border-slate-200">
         <div class="container mx-auto px-4 text-center">
-            <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Porovnáváme a sjednáváme úvěry u těchto partnerů</p>
-            <div class="flex flex-wrap justify-center items-center gap-8 opacity-50 grayscale">
-                <span class="text-xl font-black">Česká spořitelna</span>
-                <span class="text-xl font-black">ČSOB</span>
-                <span class="text-xl font-black">Komerční banka</span>
-                <span class="text-xl font-black">Raiffeisenbank</span>
-                <span class="text-xl font-black">UniCredit</span>
-                <span class="text-xl font-black">mBank</span>
+            <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Porovnáváme a sjednáváme úvěry u těchto partnerů</p>
+            <div class="flex flex-wrap justify-center items-center gap-x-10 gap-y-6 opacity-60">
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">Česká spořitelna</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">ČSOB</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">Komerční banka</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">Raiffeisenbank</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">UniCredit Bank</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">mBank</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">Air Bank</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">Fio banka</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">Banka CREDITAS</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">MONETA</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">Modrá pyramida</span>
+                <span class="text-lg font-black text-slate-600 hover:text-blue-600 transition-colors cursor-default">Buřinka</span>
             </div>
         </div>
     </section>

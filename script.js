@@ -110,7 +110,7 @@ const renderForm = () => {
     handleGuidedFormLogic();
     updateLTVDisplay();
     setupTooltips();
-    generateSuggestions(); // Update suggestions based on fields
+    generateSuggestions();
 };
 
 const handleGuidedFormLogic = () => {
@@ -226,7 +226,6 @@ const renderResults = () => {
                     <div class="text-3xl font-bold text-yellow-400">${best.rate.toFixed(2)} % p.a.</div>
                 </div>
             </div>
-            ${best.highlights ? `<div class="flex flex-wrap gap-2 mt-4">${best.highlights.map(h => `<span class="px-3 py-1 bg-white/20 rounded-full text-xs font-bold">${h}</span>`).join('')}</div>` : ''}
         </div>`;
 
     if (calc.offers.length > 1) {
@@ -427,10 +426,10 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
 
 const generateSuggestions = () => {
     const sug = document.getElementById('ai-suggestions');
-    let texts = ["Jaké dokumenty potřebuji?", "Změnit fixaci", "Co je LTV?"];
+    let texts = ["Vysvětli mi DSTI", "Mám záznam v registru", "Změnit fixaci", "Co je LTV?"];
     
     if (state.formData.employment === 'osvč' || state.formData.employment === 'jednatel') {
-        texts = ["Jak banky počítají obrat?", "Vyžadujete daňové přiznání?", "Jsem OSVČ"];
+        texts = ["Jak banky počítají obrat?", "Nejnižší sazba pro OSVČ?", "Vyžadujete daňové přiznání?"];
     } else if (state.formData.purpose === 'refinancování') {
         texts = ["Jak dlouho dopředu řešit refinancování?", "Kdo platí odhad při refinancování?"];
     } else if (state.formData.purpose === 'výstavba') {
