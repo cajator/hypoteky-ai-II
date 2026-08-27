@@ -92,6 +92,7 @@ const renderForm = () => {
     handleGuidedFormLogic();
     updateLTVDisplay();
     setupTooltips();
+    generateSuggestions(); // Update suggestions based on fields
 };
 
 const handleGuidedFormLogic = () => {
@@ -150,6 +151,7 @@ window.handleSelect = (id, val) => {
     state.formData[id] = val;
     if (id === 'purpose') handleGuidedFormLogic();
     updateLTVDisplay();
+    generateSuggestions(); // Změna selectu (např OSVČ) změní návrhy chatu
     clearTimeout(window.calcTimeout);
     window.calcTimeout = setTimeout(fetchRates, 600);
 };
@@ -191,21 +193,22 @@ const renderResults = () => {
             ${renderScoreBar('Bonita', app.bonita, 'Celková spolehlivost', 'bg-purple-500', '⭐')}
         </div>
 
-        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-3xl text-white shadow-xl relative overflow-hidden mb-8">
-            <div class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-4 py-1.5 rounded-bl-xl tracking-wider uppercase">Vítězná nabídka</div>
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-3xl text-white shadow-xl relative overflow-hidden mb-8 transform transition-all hover:scale-[1.01]">
+            <div class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-4 py-1.5 rounded-bl-xl tracking-wider uppercase shadow-sm">Vítězná nabídka</div>
             <h3 class="text-3xl font-extrabold mb-2">${best.title}</h3>
-            <p class="text-blue-100 text-sm font-medium mb-6">${best.description}</p>
+            <p class="text-blue-100 text-sm font-medium mb-6 max-w-md">${best.description}</p>
             
             <div class="flex flex-col sm:flex-row justify-between items-center bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/20">
                 <div class="text-center sm:text-left mb-4 sm:mb-0">
                     <div class="text-xs uppercase tracking-widest font-bold text-blue-200 mb-1">Měsíční splátka</div>
-                    <div class="text-4xl font-black">${formatNumber(best.monthlyPayment)}</div>
+                    <div class="text-4xl font-black text-white">${formatNumber(best.monthlyPayment)}</div>
                 </div>
                 <div class="text-center sm:text-right border-t sm:border-t-0 sm:border-l border-white/10 pt-4 sm:pt-0 sm:pl-6">
                     <div class="text-xs uppercase tracking-widest font-bold text-blue-200 mb-1">Úroková sazba</div>
                     <div class="text-3xl font-bold text-yellow-400">${best.rate.toFixed(2)} % p.a.</div>
                 </div>
             </div>
+            ${best.highlights ? `<div class="flex flex-wrap gap-2 mt-4">${best.highlights.map(h => `<span class="px-3 py-1 bg-white/20 rounded-full text-xs font-bold">${h}</span>`).join('')}</div>` : ''}
         </div>`;
 
     if (calc.offers.length > 1) {
@@ -215,13 +218,13 @@ const renderResults = () => {
             <div class="overflow-x-auto rounded-xl border border-slate-200">
                 <table class="w-full bg-white text-sm text-left">
                     <thead class="bg-slate-50 border-b border-slate-200">
-                        <tr><th class="px-4 py-3 text-slate-700">Varianta</th><th class="px-4 py-3 text-right text-slate-700">Splátka</th><th class="px-4 py-3 text-right text-slate-700">Úrok</th></tr>
+                        <tr><th class="px-4 py-3 font-bold text-slate-700">Varianta</th><th class="px-4 py-3 font-bold text-slate-700 text-right">Měsíční splátka</th><th class="px-4 py-3 font-bold text-slate-700 text-right">Úrok</th></tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         ${calc.offers.map((o, i) => `
                             <tr class="hover:bg-blue-50 cursor-pointer transition-colors ${o.id === best.id ? 'bg-blue-50/50' : ''}" onclick="selectOffer('${o.id}')">
                                 <td class="px-4 py-4 font-bold text-blue-700">${i===0?'🏆 ':''}${o.title}</td>
-                                <td class="px-4 py-4 text-right font-black text-lg">${formatNumber(o.monthlyPayment)}</td>
+                                <td class="px-4 py-4 text-right font-black text-lg text-slate-900">${formatNumber(o.monthlyPayment)}</td>
                                 <td class="px-4 py-4 text-right font-bold text-blue-600">${o.rate.toFixed(2)} %</td>
                             </tr>
                         `).join('')}
@@ -234,32 +237,80 @@ const renderResults = () => {
     if (fix) {
         html += `
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                <h4 class="font-extrabold text-slate-900 mb-4 flex items-center gap-2">📊 Detail fixace na ${state.formData.fixation} let</h4>
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h4 class="font-extrabold text-slate-900 mb-4 flex items-center gap-2"><span class="text-xl">📊</span> Detail fixace na ${state.formData.fixation} let</h4>
                 <div class="space-y-3">
-                    <div class="flex justify-between text-sm pb-3 border-b border-slate-200"><span class="text-slate-500">Zaplatíte celkem:</span> <strong class="text-slate-900">${formatNumber(fix.totalPaymentsInFixation)}</strong></div>
-                    <div class="flex justify-between text-sm pb-3 border-b border-slate-200"><span class="text-slate-500">Čistý náklad (Úroky):</span> <strong class="text-red-500">${formatNumber(fix.totalInterestForFixation)}</strong></div>
-                    <div class="flex justify-between text-sm pt-1"><span class="text-slate-500">Zbývající dluh:</span> <strong class="text-blue-700">${formatNumber(fix.remainingBalanceAfterFixation)}</strong></div>
+                    <div class="flex justify-between text-sm font-semibold pb-3 border-b border-slate-200"><span class="text-slate-500">Zaplatíte celkem:</span> <strong class="text-slate-900">${formatNumber(fix.totalPaymentsInFixation)}</strong></div>
+                    <div class="flex justify-between text-sm font-semibold pb-3 border-b border-slate-200"><span class="text-slate-500">Z toho čisté úroky:</span> <strong class="text-red-500">${formatNumber(fix.totalInterestForFixation)}</strong></div>
+                    <div class="flex justify-between text-sm font-semibold pt-1"><span class="text-slate-500">Zbývající dluh:</span> <strong class="text-blue-700 text-base">${formatNumber(fix.remainingBalanceAfterFixation)}</strong></div>
                 </div>
             </div>
-            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                <h4 class="font-extrabold text-slate-900 mb-4">📈 Úroky vs. Jistina</h4>
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h4 class="font-extrabold text-slate-900 mb-4 flex items-center gap-2"><span class="text-xl">📈</span> Úroky vs. Jistina</h4>
                 <div class="h-40"><canvas id="chart"></canvas></div>
             </div>
         </div>`;
     }
 
+    html += `
+        <div class="text-center bg-blue-50 p-8 rounded-2xl border border-blue-100">
+            <h4 class="text-xl font-extrabold text-blue-900 mb-2">Líbí se vám tato analýza?</h4>
+            <p class="text-sm text-blue-700 mb-6">Nechte si ji nezávazně ověřit specialistou a vyjednat přesné podmínky.</p>
+            <button onclick="document.getElementById('lead-modal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-lg transition-transform transform hover:-translate-y-1">
+                ✅ Chci ověřit dostupnost zdarma
+            </button>
+        </div>
+    `;
+
     res.innerHTML = html;
 
+    // --- OPRAVA GRAFU MATEMATICKY ---
     if (fix && typeof Chart !== 'undefined') {
         const ctx = document.getElementById('chart').getContext('2d');
         if (state.chartInstance) state.chartInstance.destroy();
-        const yData = Array.from({length: state.formData.fixation}, (_, i) => ({ year: i+1, i: (best.monthlyPayment*12)*0.7*(1-i/15), p: (best.monthlyPayment*12)*0.3*(1+i/15) }));
+        
+        // Získáme reálnou matematiku z anuity
+        const payment = best.monthlyPayment * 12; // Roční splátka (stálá)
+        const rate = best.rate / 100;
+        let balance = state.formData.loanAmount;
+        const yearsToShow = Math.min(state.formData.fixation, 10); // Ukažme max 10 let
+        const yData = [];
+
+        for (let year = 1; year <= yearsToShow; year++) {
+            let yearInterest = 0;
+            let yearPrincipal = 0;
+            // Výpočet po měsících pro jeden rok
+            for(let m = 0; m < 12; m++) {
+                const interest = balance * (rate / 12);
+                const principal = (payment / 12) - interest;
+                yearInterest += interest;
+                yearPrincipal += principal;
+                balance -= principal;
+            }
+            yData.push({ year, i: yearInterest, p: yearPrincipal });
+        }
+
         state.chartInstance = new Chart(ctx, {
-            type: 'bar', data: { labels: yData.map(d=>d.year+'. rok'), datasets: [{label:'Úroky', data:yData.map(d=>d.i), backgroundColor:'#ef4444', borderRadius:4}, {label:'Jistina', data:yData.map(d=>d.p), backgroundColor:'#22c55e', borderRadius:4}] },
-            options: { responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true, grid:{display:false}}, y:{stacked:true, display:false}}, plugins:{legend:{position:'bottom', labels:{boxWidth:12, font:{size:11}}}} }
+            type: 'bar', 
+            data: { 
+                labels: yData.map(d=>d.year+'. rok'), 
+                datasets: [
+                    {label:'Úroky', data:yData.map(d=>d.i), backgroundColor:'#ef4444', borderRadius:0}, 
+                    {label:'Jistina (Mizí dluh)', data:yData.map(d=>d.p), backgroundColor:'#22c55e', borderRadius:0}
+                ] 
+            },
+            options: { 
+                responsive:true, maintainAspectRatio:false, 
+                scales:{
+                    x:{stacked:true, grid:{display:false}}, 
+                    y:{stacked:true, display:false}
+                }, 
+                plugins:{legend:{position:'bottom', labels:{boxWidth:12, font:{size:11}}}} 
+            }
         });
     }
+
+    document.getElementById('manual-financial-fields')?.classList.add('hidden');
 };
 
 window.selectOffer = (id) => {
@@ -280,11 +331,12 @@ const fetchRates = async () => {
     }
 };
 
-// --- CHAT LOGIC (S LEPŠÍM ERROR HANDLINGEM) ---
+// --- CHAT LOGIC ---
 const appendChat = (text, sender) => {
     const w = document.createElement('div');
     w.className = `flex w-full ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
-    let pt = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    let pt = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/
+/g, '<br>');
     
     if (pt.includes('showLeadForm')) {
         pt = `Rád vás spojím s expertem. <strong><a href="#" onclick="document.getElementById('lead-modal').classList.remove('hidden'); return false;" class="text-blue-600 underline">Klikněte sem pro formulář</a></strong>.`;
@@ -340,14 +392,23 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
     } catch(err) {
         document.getElementById(tid)?.remove();
         state.isAiTyping = false;
-        // Zde vypíšeme konkrétní chybovou hlášku od Googlu (aby bylo vidět, proč API selhalo)
-        appendChat(`Chyba spojení s AI: ${err.message}. Zkuste formulář v menu.`, 'ai');
+        appendChat(`Chyba API Googlu: ${err.message}. Zkuste to znovu.`, 'ai');
     }
 });
 
 const generateSuggestions = () => {
     const sug = document.getElementById('ai-suggestions');
-    const texts = ["Jak zlepšit skóre?", "Jsem OSVČ", "Co je DSTI?", "Změnit fixaci"];
+    let texts = ["Vysvětli mi DSTI", "Mám záznam v registru", "Změnit fixaci", "Co je LTV?"];
+    
+    // Kontextová změna tlačítek podle toho co uživatel zadal!
+    if (state.formData.employment === 'osvč' || state.formData.employment === 'jednatel') {
+        texts = ["Jak banky počítají obrat?", "Nejnižší sazba pro OSVČ?", "Vyžadujete daňové přiznání?"];
+    } else if (state.formData.purpose === 'refinancování') {
+        texts = ["Jak dlouho dopředu řešit refinancování?", "Kdo platí odhad při refinancování?", "Porovnat s mou bankou"];
+    } else if (state.formData.purpose === 'výstavba') {
+        texts = ["Jak se prokazují faktury?", "Lze ručit jen pozemkem?", "Jak probíhá čerpání?"];
+    }
+
     sug.innerHTML = texts.map(t => `<button type="button" class="text-xs font-bold bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-full whitespace-nowrap hover:border-blue-500 hover:text-blue-700 transition-all shadow-sm" onclick="document.getElementById('chat-input').value='${t}'; document.getElementById('chat-form').dispatchEvent(new Event('submit'))">${t}</button>`).join('');
 };
 
@@ -377,6 +438,27 @@ document.getElementById('mode-guided').addEventListener('click', (e) => {
     renderForm(); fetchRates();
 });
 
+document.getElementById('lead-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submit-lead-btn');
+    btn.disabled = true; btn.textContent = 'Odesílám...';
+    const fd = new FormData(e.target);
+    const p = new URLSearchParams();
+    for (const pair of fd.entries()) p.append(pair[0], pair[1]);
+    p.append('extraData', JSON.stringify({ formData: state.formData, calculation: state.calculation, chatHistory: state.chatHistory }));
+
+    try {
+        await fetch('/.netlify/functions/form-handler', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: p.toString() });
+        document.getElementById('lead-form').classList.add('hidden');
+        document.getElementById('form-success').classList.remove('hidden');
+    } catch(err) {
+        btn.disabled = false; btn.textContent = 'Odeslat nezávazně ke zpracování';
+        alert('Chyba odeslání. Zkuste to prosím znovu.');
+    }
+});
+
 // INIT
-renderForm(); fetchRates(); generateSuggestions();
-setTimeout(() => appendChat('Dobrý den! Jsem váš hypoteční stratég. S čím vám mohu poradit?', 'ai'), 800);
+renderForm(); 
+fetchRates(); 
+generateSuggestions();
+setTimeout(() => appendChat('Dobrý den! Jsem váš hypoteční stratég s přístupem do metodik 19+ bank. Vidím vaši kalkulaci vedle. Můžete se mě zeptat na to, co potřebujete z hlediska dokládání příjmů nebo optimální fixace.', 'ai'), 800);
