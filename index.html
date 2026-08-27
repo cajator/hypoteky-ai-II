@@ -69,7 +69,7 @@
                     
                     <hr class="border-slate-100 my-8">
                     
-                    <!-- INLINE LEAD FORM -->
+                    <!-- INLINE LEAD FORM (PEVNĚ POD KALKULAČKOU) -->
                     <div id="kontakt-form" class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 scroll-mt-24">
                         <h3 class="text-2xl font-extrabold text-slate-900 mb-2">Závazné ověření s expertem</h3>
                         <p class="text-slate-500 mb-8 text-sm">Líbí se vám tato analýza? Nechte nám kontakt. Náš specialista zkontroluje vaše skóre a vyjedná nejlepší sazbu. Zcela zdarma.</p>
@@ -100,6 +100,12 @@
                                     <input type="text" name="psc" required placeholder="např. 110 00" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                                 </div>
                             </div>
+                            
+                            <!-- Společná třída pro skrytí po výpočtu -->
+                            <div class="manual-financial-fields grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-100 p-5 rounded-xl border border-slate-200 hidden">
+                                <div><label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Výše úvěru</label><input type="number" name="manual_loan" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none"></div>
+                                <div><label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Hodnota nemovitosti</label><input type="number" name="manual_prop" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none"></div>
+                            </div>
 
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Kdy vás můžeme kontaktovat?</label>
@@ -119,6 +125,7 @@
                             <button type="submit" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-colors mt-2 submit-btn">
                                 Odeslat nezávazně ke zpracování
                             </button>
+                            <p class="text-xs text-center text-slate-400">Vaše data jsou u nás v bezpečí a slouží pouze pro výpočet hypotéky.</p>
                         </form>
                         
                         <div id="inline-form-success" class="hidden mt-6 p-6 bg-green-50 text-green-800 rounded-xl border border-green-200 text-center">
@@ -231,7 +238,7 @@
         </div>
     </section>
 
-    <!-- Partneři (NOVĚ ROZBALENÍ VŠECH BANK) -->
+    <!-- Partneři -->
     <section class="py-12 bg-white border-y border-slate-200">
         <div class="container mx-auto px-4 text-center">
             <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Porovnáváme a sjednáváme úvěry u těchto partnerů</p>
@@ -265,7 +272,7 @@
         </div>
     </footer>
 
-    <!-- MODAL FORM PRO HLAVIČKU A CHAT -->
+    <!-- MODAL FORM PRO HLAVIČKU A CHAT (ZÁMĚRNĚ STEJNÁ POLE JAKO U INLINE) -->
     <div id="lead-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-[100] overflow-y-auto">
         <div class="min-h-screen px-4 py-10 text-center flex items-center justify-center">
             <div class="bg-white rounded-3xl max-w-xl w-full p-8 text-left shadow-2xl relative">
@@ -278,14 +285,50 @@
                     <input type="hidden" name="form-name" value="lead-form" />
                     <p class="hidden"><label>Nevyplňujte: <input name="bot-field" /></label></p>
                     <input type="hidden" name="extraData" class="extraDataInput" />
+                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <input type="text" name="name" required placeholder="Jméno a příjmení *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
-                        <input type="tel" name="phone" required placeholder="Telefon *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Jméno a příjmení *</label>
+                            <input type="text" name="name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Telefon *</label>
+                            <input type="tel" name="phone" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                        </div>
                     </div>
+                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <input type="email" name="email" required placeholder="E-mail *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
-                        <input type="text" name="psc" required placeholder="PSČ *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">E-mail *</label>
+                            <input type="email" name="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">PSČ *</label>
+                            <input type="text" name="psc" required placeholder="např. 110 00" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                        </div>
                     </div>
+
+                    <!-- Manuální pole (společná třída) -->
+                    <div class="manual-financial-fields grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-100 p-5 rounded-xl border border-slate-200 hidden">
+                        <div><label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Výše úvěru</label><input type="number" name="manual_loan" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none"></div>
+                        <div><label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Hodnota nemovitosti</label><input type="number" name="manual_prop" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Kdy vás můžeme kontaktovat?</label>
+                        <select name="contact-time" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="kdykoliv">Kdykoliv během dne</option>
+                            <option value="rano">Ráno (8:00 - 12:00)</option>
+                            <option value="odpoledne">Odpoledne (12:00 - 17:00)</option>
+                            <option value="vecer">Večer (17:00 - 20:00)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Doplňující informace (nepovinné)</label>
+                        <textarea name="note" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Jsem OSVČ, už mám vyhlédnutý dům..."></textarea>
+                    </div>
+
                     <button type="submit" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-colors mt-4 submit-btn">
                         Odeslat nezávazně ke zpracování
                     </button>

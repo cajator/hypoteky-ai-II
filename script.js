@@ -12,7 +12,7 @@ const state = {
     chartInstance: null
 };
 
-// --- QUICK RESPONSES (BEZ ČEKÁNÍ NA API) ---
+// --- QUICK RESPONSES ---
 const QUICK_RESPONSES = {
     'dokumenty|potřebuji|doklady|podklady': `<strong>📋 Zde je seznam dokumentů:</strong><br>• Platný občanský průkaz<br>• Potvrzení o příjmu (nebo daňové přiznání)<br>• Výpisy z účtu za poslední 3 měsíce<br>• Návrh kupní smlouvy<br>💡 <em>Tip: S přípravou dokumentů vám rád pomůže náš specialista.</em>`,
     'kolik.*půjčit|maximální.*úvěr|jakou.*částku': `<strong>💰 Kolik si můžete půjčit:</strong><br>Hrubý odhad je <strong>váš čistý měsíční příjem × 9 let</strong> (tedy x 108 měsíců).<br>Např. při příjmu 50 000 Kč dosáhnete cca na 4,5 mil. Kč.<br>💡 <em>Tip: Přesná částka závisí i na vašem věku a dalších půjčkách. Můžete si to otestovat přímo v naší detailní kalkulačce vlevo!</em>`,
@@ -37,15 +37,12 @@ const createSlider = (id, label, value, min, max, step, containerClass = '', inf
     let suffix = ' Kč';
     if (id.includes('Term') || id.includes('age') || id.includes('fixation')) suffix = ' let';
     else if (id.includes('children')) suffix = '';
-
     const infoIcon = infoText ? `<span class="info-icon text-blue-500 hover:text-blue-700 ml-1 cursor-pointer" data-tooltip="${infoText}">?</span>` : '';
 
     return `
     <div class="${containerClass} mb-5" id="${id}-group">
         <div class="flex justify-between items-center mb-2 gap-2">
-            <label for="${id}" class="text-sm font-extrabold text-slate-700 flex items-center">
-                ${label} ${infoIcon}
-            </label>
+            <label for="${id}" class="text-sm font-extrabold text-slate-700 flex items-center">${label} ${infoIcon}</label>
             <div class="flex items-center gap-1">
                 <input type="text" id="${id}-input" value="${formatNumber(value, false)}" class="font-black text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-lg text-right w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-inner" onchange="handleInput('${id}', this.value, 'text')">
                 <span class="text-sm font-bold text-slate-500 w-6">${suffix}</span>
@@ -56,9 +53,7 @@ const createSlider = (id, label, value, min, max, step, containerClass = '', inf
 };
 
 const createSelect = (id, label, options, selectedValue, containerClass = '') => {
-    const optionsHTML = Object.entries(options).map(([key, val]) => 
-        `<option value="${key}" ${key === selectedValue ? 'selected' : ''}>${val}</option>`
-    ).join('');
+    const optionsHTML = Object.entries(options).map(([key, val]) => `<option value="${key}" ${key === selectedValue ? 'selected' : ''}>${val}</option>`).join('');
     return `
     <div class="${containerClass} mb-5">
         <label for="${id}" class="block text-sm font-extrabold text-slate-700 mb-2">${label}</label>
@@ -226,6 +221,7 @@ const renderResults = () => {
                     <div class="text-3xl font-bold text-yellow-400">${best.rate.toFixed(2)} % p.a.</div>
                 </div>
             </div>
+            ${best.highlights ? `<div class="flex flex-wrap gap-2 mt-4">${best.highlights.map(h => `<span class="px-3 py-1 bg-white/20 rounded-full text-xs font-bold">${h}</span>`).join('')}</div>` : ''}
         </div>`;
 
     if (calc.offers.length > 1) {
@@ -315,7 +311,10 @@ const renderResults = () => {
         });
     }
 
-    // Pro formulář dole nastavíme extraData
+    // SKRYTÍ MANUÁLNÍCH POLÍ V OBOU FORMULÁŘÍCH
+    document.querySelectorAll('.manual-financial-fields').forEach(el => el.classList.add('hidden'));
+
+    // Nastavení extraData inputů
     const extraInputs = document.querySelectorAll('.extraDataInput');
     extraInputs.forEach(inp => {
         inp.value = JSON.stringify({ formData: state.formData, calculation: state.calculation });
@@ -348,6 +347,7 @@ const appendChat = (text, sender) => {
     
     if (pt.includes('showLeadForm')) {
         pt = `Rád vás spojím s expertem. Formulář najdete hned pod výsledky, <strong><a href="#kontakt-form" class="text-blue-600 underline">případně klikněte zde</a></strong>.`;
+        document.getElementById('lead-modal').classList.remove('hidden');
     }
     
     w.innerHTML = `<div class="${sender === 'user' ? 'bubble-user' : 'bubble-ai shadow-sm'}">${pt}</div>`;
@@ -364,7 +364,7 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
     const msg = inputEl.value.trim();
     if (!msg || state.isAiTyping) return;
     
-    // Zkusíme nejprve okamžitou odpověď (Quick Response)
+    // Quick Response Override
     const quickRes = findQuickResponse(msg);
     if (quickRes) {
         appendChat(msg, 'user');
@@ -384,7 +384,6 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
         return;
     }
 
-    // Pokud nenajdeme instantní odpověď, voláme Google API
     appendChat(msg, 'user');
     inputEl.value = '';
     state.isAiTyping = true;
@@ -420,7 +419,7 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
     } catch(err) {
         document.getElementById(tid)?.remove();
         state.isAiTyping = false;
-        appendChat(`Chyba API Googlu: ${err.message}. Kontaktujte specialistu přímo přes formulář dole.`, 'ai');
+        appendChat(`Chyba API Googlu: ${err.message}. Kontaktujte specialistu přímo přes formulář.`, 'ai');
     }
 });
 
@@ -465,34 +464,32 @@ document.getElementById('mode-guided').addEventListener('click', (e) => {
     renderForm(); fetchRates();
 });
 
-// OBSLUHA DVOU FORMULÁŘŮ (Modal a Inline)
+// OBSLUHA OBOJÍCH FORMULÁŘŮ
 const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const btn = e.target.querySelector('button[type="submit"]');
-    btn.disabled = true; btn.textContent = 'Odesílám...';
+    const btn = e.target.querySelector('.submit-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Odesílám...'; }
     
     const fd = new FormData(e.target);
     const p = new URLSearchParams();
     for (const pair of fd.entries()) p.append(pair[0], pair[1]);
     
-    // extraData jsou už naplněná v inputu z renderResults
-
     try {
         await fetch('/.netlify/functions/form-handler', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: p.toString() });
         e.target.classList.add('hidden');
-        const successDiv = e.target.id === 'lead-form' ? document.getElementById('modal-form-success') : document.getElementById('inline-form-success');
+        const successDiv = e.target.id === 'inline-lead-form' ? document.getElementById('inline-form-success') : document.getElementById('modal-form-success');
         if(successDiv) successDiv.classList.remove('hidden');
     } catch(err) {
-        btn.disabled = false; btn.textContent = 'Odeslat nezávazně ke zpracování';
+        if (btn) { btn.disabled = false; btn.textContent = 'Odeslat nezávazně ke zpracování'; }
         alert('Chyba odeslání. Zkuste to prosím znovu.');
     }
 };
 
-document.getElementById('lead-form')?.addEventListener('submit', handleFormSubmit);
 document.getElementById('inline-lead-form')?.addEventListener('submit', handleFormSubmit);
+document.getElementById('modal-lead-form')?.addEventListener('submit', handleFormSubmit);
 
 // INIT
 renderForm(); 
 fetchRates(); 
 generateSuggestions();
-setTimeout(() => appendChat('Dobrý den! Jsem váš hypoteční stratég s přístupem do metodik 19+ bank. Vidím vaši kalkulaci vedle. Můžete se mě zeptat na to, co potřebujete z hlediska dokládání příjmů nebo optimální fixace.', 'ai'), 800);
+setTimeout(() => appendChat('Dobrý den! Jsem váš hypoteční stratég. Vidím vaši kalkulaci vedle. Můžete se mě zeptat na cokoliv.', 'ai'), 800);
