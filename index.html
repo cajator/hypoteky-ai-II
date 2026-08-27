@@ -24,9 +24,10 @@
                 <a href="#myty-fakta" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">Mýty a fakta</a>
                 <a href="faq.html" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">FAQ</a>
             </div>
-            <a href="#kontakt-form" class="bg-slate-900 hover:bg-blue-600 text-white text-sm px-6 py-2.5 rounded-full font-bold shadow-lg transition-all transform hover:-translate-y-0.5">
+            <!-- ZMĚNA: Tlačítko nahoře už neskáče dolů, ale otevře okamžitě modal -->
+            <button onclick="document.getElementById('lead-modal').classList.remove('hidden')" class="bg-slate-900 hover:bg-blue-600 text-white text-sm px-6 py-2.5 rounded-full font-bold shadow-lg transition-all transform hover:-translate-y-0.5">
                 Ověřit s expertem
-            </a>
+            </button>
         </nav>
     </header>
 
@@ -69,15 +70,15 @@
                     
                     <hr class="border-slate-100 my-8">
                     
-                    <!-- INLINE LEAD FORM (PŮVODNÍ UMÍSTĚNÍ A STRUKTURA) -->
-                    <div id="kontakt-form" class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 scroll-mt-24">
+                    <!-- INLINE LEAD FORM (PEVNĚ POD KALKULAČKOU) -->
+                    <div id="kontakt-form" class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200">
                         <h3 class="text-2xl font-extrabold text-slate-900 mb-2">Závazné ověření s expertem</h3>
                         <p class="text-slate-500 mb-8 text-sm">Líbí se vám tato analýza? Nechte nám kontakt. Náš specialista zkontroluje vaše skóre a vyjedná nejlepší sazbu. Zcela zdarma.</p>
                         
-                        <form id="lead-form" class="space-y-5" name="lead-form" data-netlify="true" netlify-honeypot="bot-field">
-                            <input type="hidden" name="form-name" value="lead-form" />
+                        <form id="inline-lead-form" class="space-y-5" name="inline-lead-form" data-netlify="true" netlify-honeypot="bot-field">
+                            <input type="hidden" name="form-name" value="inline-lead-form" />
                             <p class="hidden"><label>Nevyplňujte: <input name="bot-field" /></label></p>
-                            <input type="hidden" name="extraData" id="extraData" />
+                            <input type="hidden" name="extraData" class="extraDataInput" />
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
@@ -116,13 +117,13 @@
                                 <textarea name="note" rows="2" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Jsem OSVČ, už mám vyhlédnutý dům..."></textarea>
                             </div>
 
-                            <button type="submit" id="submit-lead-btn" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-colors mt-2">
+                            <button type="submit" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-colors mt-2 submit-btn">
                                 Odeslat nezávazně ke zpracování
                             </button>
                             <p class="text-xs text-center text-slate-400">Vaše data jsou u nás v bezpečí a slouží pouze pro výpočet hypotéky.</p>
                         </form>
                         
-                        <div id="form-success" class="hidden mt-6 p-6 bg-green-50 text-green-800 rounded-xl border border-green-200 text-center">
+                        <div id="inline-form-success" class="hidden mt-6 p-6 bg-green-50 text-green-800 rounded-xl border border-green-200 text-center">
                             <div class="text-4xl mb-2">✅</div>
                             <h4 class="font-extrabold text-xl mb-1">Požadavek úspěšně odeslán</h4>
                             <p class="text-sm font-medium">Náš specialista vaše data nyní analyzuje a brzy se vám ozve.</p>
@@ -259,6 +260,39 @@
             </div>
         </div>
     </footer>
+
+    <!-- MODAL FORM PRO HLAVIČKU A CHAT -->
+    <div id="lead-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-[100] overflow-y-auto">
+        <div class="min-h-screen px-4 py-10 text-center flex items-center justify-center">
+            <div class="bg-white rounded-3xl max-w-xl w-full p-8 text-left shadow-2xl relative">
+                <button onclick="document.getElementById('lead-modal').classList.add('hidden')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-800 bg-slate-100 rounded-full p-2 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h3 class="text-3xl font-extrabold text-slate-900 mb-2">Závazné ověření s expertem</h3>
+                <p class="text-slate-500 mb-8">Nechte nám kontakt. Náš specialista zkontroluje vaše skóre a vyjedná nejlepší sazbu. <strong class="text-green-600">Zcela zdarma.</strong></p>
+                <form id="modal-lead-form" class="space-y-5" name="lead-form" data-netlify="true" netlify-honeypot="bot-field">
+                    <input type="hidden" name="form-name" value="lead-form" />
+                    <p class="hidden"><label>Nevyplňujte: <input name="bot-field" /></label></p>
+                    <input type="hidden" name="extraData" class="extraDataInput" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <input type="text" name="name" required placeholder="Jméno a příjmení *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="tel" name="phone" required placeholder="Telefon *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <input type="email" name="email" required placeholder="E-mail *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="text" name="psc" required placeholder="PSČ *" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg transition-colors mt-4 submit-btn">
+                        Odeslat nezávazně ke zpracování
+                    </button>
+                </form>
+                <div id="modal-form-success" class="hidden mt-6 p-6 bg-green-50 text-green-800 rounded-xl border border-green-200 text-center">
+                    <div class="text-4xl mb-2">✅</div>
+                    <h4 class="font-extrabold text-xl mb-1">Požadavek úspěšně odeslán</h4>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Info Tooltip -->
     <div id="tooltip-container" class="absolute z-[100] hidden bg-slate-900 text-white text-xs font-semibold p-3 rounded-xl shadow-xl max-w-[250px] leading-relaxed pointer-events-none"></div>

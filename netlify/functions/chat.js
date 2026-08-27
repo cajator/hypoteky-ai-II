@@ -14,7 +14,7 @@ exports.handler = async (event) => {
         
         const prompt = `Jsi profesionální hypoteční AI stratég pro Hypoteky Ai. 
         Mluv stručně, v odstavcích, max 3 věty. 
-        Pokud klient potřebuje pomoct s konkrétní nabídkou, pobídni ho ať vyplní formulář, který je umístěn hned pod výsledky kalkulačky.
+        Pokud klient potřebuje pomoct s konkrétní nabídkou, pobídni ho ať si vyžádá konzultaci. Pro spojení s expertem vrať POUZE: {"tool":"showLeadForm"}
         Pokud LTV > 90% nebo DSTI > 45%, upozorni na problém. U OSVČ zmiň obratové hypotéky.
         Aktuální parametry klienta: Účel: ${context.formData.purpose}, Příjem typ: ${context.formData.employment}. Úvěr ${context.formData.loanAmount} Kč, LTV: ${ltv}%, DSTI: ${dsti}%.
         Dotaz klienta: ${message}`;
@@ -32,6 +32,9 @@ exports.handler = async (event) => {
 
         const data = await response.json();
         const responseText = data.candidates[0].content.parts[0].text.trim();
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) return { statusCode: 200, headers, body: jsonMatch[0] };
+        
         return { statusCode: 200, headers, body: JSON.stringify({ response: responseText }) };
     } catch (e) { return { statusCode: 500, headers, body: JSON.stringify({ error: `Chyba: ${e.message}` }) }; }
 };

@@ -12,6 +12,24 @@ const state = {
     chartInstance: null
 };
 
+// --- QUICK RESPONSES (BEZ ČEKÁNÍ NA API) ---
+const QUICK_RESPONSES = {
+    'dokumenty|potřebuji|doklady|podklady': `<strong>📋 Zde je seznam dokumentů:</strong><br>• Platný občanský průkaz<br>• Potvrzení o příjmu (nebo daňové přiznání)<br>• Výpisy z účtu za poslední 3 měsíce<br>• Návrh kupní smlouvy<br>💡 <em>Tip: S přípravou dokumentů vám rád pomůže náš specialista.</em>`,
+    'kolik.*půjčit|maximální.*úvěr|jakou.*částku': `<strong>💰 Kolik si můžete půjčit:</strong><br>Hrubý odhad je <strong>váš čistý měsíční příjem × 9 let</strong> (tedy x 108 měsíců).<br>Např. při příjmu 50 000 Kč dosáhnete cca na 4,5 mil. Kč.<br>💡 <em>Tip: Přesná částka závisí i na vašem věku a dalších půjčkách. Můžete si to otestovat přímo v naší detailní kalkulačce vlevo!</em>`,
+    'osvč|podnikatel|živnost': `<strong>🏢 Hypotéka pro OSVČ:</strong><br>Standardně banky berou čistý zisk z daňového přiznání. My však umíme u vybraných bank zařídit <strong>výpočet z obratu (15-25%)</strong>. To je ideální pro ty, kteří legálně optimalizují daně paušálem.<br>💡 <em>Tip: Vyplňte formulář pod kalkulačkou a náš expert vám najde správnou banku.</em>`,
+    'fixaci|změnit fixaci': `<strong>🔒 Jakou zvolit fixaci:</strong><br>Dnes se nejčastěji volí <strong>3 nebo 5 let</strong>. Umožňuje to flexibilně reagovat na případný pokles sazeb v budoucnu a hypotéku případně zdarma refinancovat.`,
+    'dsti|co je dsti': `<strong>📊 Co je DSTI:</strong><br>Zkratka pro <em>Debt Service To Income</em>. Vyjadřuje, kolik procent z vašeho čistého příjmu spolkne splátka hypotéky a všech vašich ostatních úvěrů. Bezpečný limit bank je typicky 45 % až 50 %.`,
+    'ltv|co je ltv': `<strong>🏠 Co je LTV:</strong><br>Zkratka pro <em>Loan To Value</em> (Poměr úvěru k hodnotě nemovitosti). Pokud kupujete byt za 5 mil. Kč a máte 1 mil. Kč ze svého, půjčujete si 4 mil. Kč, což odpovídá LTV 80 % (ideální stav).`
+};
+
+const findQuickResponse = (msg) => {
+    const low = msg.toLowerCase();
+    for (const [pattern, res] of Object.entries(QUICK_RESPONSES)) {
+        if (new RegExp(pattern, 'i').test(low)) return res;
+    }
+    return null;
+}
+
 // --- HELPERS ---
 const formatNumber = (n, currency = true) => Number(n).toLocaleString('cs-CZ', currency ? { style: 'currency', currency: 'CZK', maximumFractionDigits: 0 } : { maximumFractionDigits: 0 });
 
@@ -92,7 +110,7 @@ const renderForm = () => {
     handleGuidedFormLogic();
     updateLTVDisplay();
     setupTooltips();
-    generateSuggestions();
+    generateSuggestions(); // Update suggestions based on fields
 };
 
 const handleGuidedFormLogic = () => {
@@ -298,8 +316,11 @@ const renderResults = () => {
         });
     }
 
-    // Formulář pro leady je dole, updatneme skrytá pole
-    document.getElementById('manual-financial-fields')?.classList.add('hidden');
+    // Pro formulář dole nastavíme extraData
+    const extraInputs = document.querySelectorAll('.extraDataInput');
+    extraInputs.forEach(inp => {
+        inp.value = JSON.stringify({ formData: state.formData, calculation: state.calculation });
+    });
 };
 
 window.selectOffer = (id) => {
@@ -344,6 +365,27 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
     const msg = inputEl.value.trim();
     if (!msg || state.isAiTyping) return;
     
+    // Zkusíme nejprve okamžitou odpověď (Quick Response)
+    const quickRes = findQuickResponse(msg);
+    if (quickRes) {
+        appendChat(msg, 'user');
+        inputEl.value = '';
+        state.isAiTyping = true;
+        const tid = `t-${Date.now()}`;
+        const tw = document.createElement('div');
+        tw.id = tid; tw.className = `flex w-full justify-start`;
+        tw.innerHTML = `<div class="bubble-ai shadow-sm flex space-x-1 items-center h-10 px-4"><div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div><div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay:0.2s"></div></div>`;
+        document.getElementById('chat-messages').appendChild(tw);
+        
+        setTimeout(() => {
+            document.getElementById(tid).remove();
+            appendChat(quickRes, 'ai');
+            state.isAiTyping = false;
+        }, 500);
+        return;
+    }
+
+    // Pokud nenajdeme instantní odpověď, voláme Google API
     appendChat(msg, 'user');
     inputEl.value = '';
     state.isAiTyping = true;
@@ -385,14 +427,14 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
 
 const generateSuggestions = () => {
     const sug = document.getElementById('ai-suggestions');
-    let texts = ["Vysvětli mi DSTI", "Mám záznam v registru", "Změnit fixaci", "Co je LTV?"];
+    let texts = ["Jaké dokumenty potřebuji?", "Změnit fixaci", "Co je LTV?"];
     
     if (state.formData.employment === 'osvč' || state.formData.employment === 'jednatel') {
-        texts = ["Jak banky počítají obrat?", "Nejnižší sazba pro OSVČ?", "Vyžadujete daňové přiznání?"];
+        texts = ["Jak banky počítají obrat?", "Vyžadujete daňové přiznání?", "Jsem OSVČ"];
     } else if (state.formData.purpose === 'refinancování') {
-        texts = ["Jak dlouho dopředu řešit refinancování?", "Kdo platí odhad při refinancování?", "Porovnat s mou bankou"];
+        texts = ["Jak dlouho dopředu řešit refinancování?", "Kdo platí odhad při refinancování?"];
     } else if (state.formData.purpose === 'výstavba') {
-        texts = ["Jak se prokazují faktury?", "Lze ručit jen pozemkem?", "Jak probíhá čerpání?"];
+        texts = ["Jak se prokazují faktury?", "Lze ručit jen pozemkem?"];
     }
 
     sug.innerHTML = texts.map(t => `<button type="button" class="text-xs font-bold bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-full whitespace-nowrap hover:border-blue-500 hover:text-blue-700 transition-all shadow-sm" onclick="document.getElementById('chat-input').value='${t}'; document.getElementById('chat-form').dispatchEvent(new Event('submit'))">${t}</button>`).join('');
@@ -424,24 +466,31 @@ document.getElementById('mode-guided').addEventListener('click', (e) => {
     renderForm(); fetchRates();
 });
 
-document.getElementById('lead-form').addEventListener('submit', async (e) => {
+// OBSLUHA DVOU FORMULÁŘŮ (Modal a Inline)
+const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const btn = document.getElementById('submit-lead-btn');
+    const btn = e.target.querySelector('button[type="submit"]');
     btn.disabled = true; btn.textContent = 'Odesílám...';
+    
     const fd = new FormData(e.target);
     const p = new URLSearchParams();
     for (const pair of fd.entries()) p.append(pair[0], pair[1]);
-    p.append('extraData', JSON.stringify({ formData: state.formData, calculation: state.calculation, chatHistory: state.chatHistory }));
+    
+    // extraData jsou už naplněná v inputu z renderResults
 
     try {
         await fetch('/.netlify/functions/form-handler', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: p.toString() });
-        document.getElementById('lead-form').classList.add('hidden');
-        document.getElementById('form-success').classList.remove('hidden');
+        e.target.classList.add('hidden');
+        const successDiv = e.target.id === 'lead-form' ? document.getElementById('modal-form-success') : document.getElementById('inline-form-success');
+        if(successDiv) successDiv.classList.remove('hidden');
     } catch(err) {
         btn.disabled = false; btn.textContent = 'Odeslat nezávazně ke zpracování';
         alert('Chyba odeslání. Zkuste to prosím znovu.');
     }
-});
+};
+
+document.getElementById('lead-form')?.addEventListener('submit', handleFormSubmit);
+document.getElementById('inline-lead-form')?.addEventListener('submit', handleFormSubmit);
 
 // INIT
 renderForm(); 
